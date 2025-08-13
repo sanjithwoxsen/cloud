@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from ..database import get_db
-from ..models import User
-from ..schemas import UserCreate, UserOut
-from ..auth import get_password_hash, verify_password, create_access_token, decode_access_token
+from backend.database import get_db
+from backend.models import User
+from backend.schemas import UserCreate, UserOut
+from backend.auth import get_password_hash, verify_password, create_access_token, decode_access_token
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from typing import Optional
 from datetime import datetime

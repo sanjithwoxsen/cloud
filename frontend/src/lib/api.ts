@@ -40,7 +40,13 @@ export const authApi = {
   },
 
   login: async (data: { email: string; password: string }) => {
-    const response = await api.post('/login', data);
+    // Use form-encoded data for FastAPI OAuth2PasswordRequestForm
+    const params = new URLSearchParams();
+    params.append('username', data.email);
+    params.append('password', data.password);
+    const response = await api.post('/login', params, {
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+    });
     if (response.data.access_token) {
       localStorage.setItem(TOKEN_KEY, response.data.access_token);
     }
