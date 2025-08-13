@@ -32,16 +32,20 @@ This backend uses FastAPI (async), SQLAlchemy (async ORM), and psycopg2 to ensur
 
 ## API Endpoints
 
-### Auth
-- `POST /register` — Register a new user
-- `POST /login` — Get JWT token
-- `GET /me` — Get current user info (requires Bearer token)
+### Auth APIs
+| Method | Path         | Description                        |
+|--------|--------------|------------------------------------|
+| POST   | /register    | Register a new user                |
+| POST   | /login       | Login and get JWT token            |
+| GET    | /me          | Get current user info (JWT needed) |
 
-### Notes
-- `POST /notes` — Create a note (requires Bearer token)
-- `GET /notes` — List notes (requires Bearer token)
-- `PUT /notes/{id}` — Update a note (requires Bearer token)
-- `DELETE /notes/{id}` — Delete a note (requires Bearer token)
+### Notes APIs
+| Method | Path            | Description                          |
+|--------|-----------------|--------------------------------------|
+| POST   | /notes          | Create a new note (JWT needed)        |
+| GET    | /notes          | List all notes for user (JWT needed)  |
+| PUT    | /notes/{id}     | Update a note by ID (JWT needed)      |
+| DELETE | /notes/{id}     | Delete a note by ID (JWT needed)      |
 
 ## Setup & Usage
 
