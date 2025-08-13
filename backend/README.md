@@ -1,66 +1,92 @@
-# Cloud Notes App Backend
 
-A minimal FastAPI backend for a cloud notes app using PostgreSQL, async SQLAlchemy, JWT authentication, and password hashing.
-
-## Features
-- FastAPI with async SQLAlchemy and asyncpg
-- JWT authentication with python-jose
-- Password hashing with passlib
-- Environment variables from `.env`
-- CRUD for notes (only accessible to logged-in users)
+# CloudNotes Backend
 
 ## Project Structure
+
 ```
 backend/
-├── auth.py            # JWT and password utilities
-├── database.py        # DB connection setup
-├── main.py            # FastAPI app entrypoint
-├── models.py          # SQLAlchemy models (User, Note)
-├── routes/
-│   ├── auth.py        # Auth endpoints (register, login, get current user)
-│   └── notes.py       # Notes CRUD endpoints
-├── schemas.py         # Pydantic models
-├── requirements.txt   # Python dependencies
-├── .env               # Environment variables
+   auth.py                # Auth logic (JWT, password hashing)
+   create_tables.py        # Ensures .env and creates DB tables
+   database.py             # Async SQLAlchemy engine, psycopg2 DB creation
+   main.py                 # FastAPI app entrypoint
+   models.py               # SQLAlchemy ORM models (User, Note)
+   requirements.txt        # Python dependencies
+   routes/
+      auth.py               # Auth endpoints (register, login, /me)
+      notes.py              # Notes CRUD endpoints
+   schemas.py              # Pydantic schemas for API
+   scripts/
+      create_database.py    # Standalone psycopg2 DB creation utility
+      reset_user_password.py# Utility script (not covered here)
+   .env                    # Secrets and DB URL
 ```
 
-## Models
-- **User**: id, email, password_hash, created_at
-- **Note**: id, title, content, owner_id (FK to User), created_at, updated_at, deleted_at
+## Concept & Working
 
-## Endpoints
-- `POST /register` - Register a new user
-- `POST /login` - Login and get JWT token
-- `GET /me` - Get current user info
-- `POST /notes` - Create a note
-- `GET /notes` - List notes
-- `PUT /notes/{id}` - Update a note
-- `DELETE /notes/{id}` - Delete a note
+This backend uses FastAPI (async), SQLAlchemy (async ORM), and psycopg2 to ensure the target PostgreSQL database exists before starting the app. On startup:
 
-## Setup
-1. Clone the repo and navigate to the `backend` directory.
-2. Create and activate a Python virtual environment:
-   ```zsh
-   python3 -m venv .venv
-   source .venv/bin/activate
-   ```
-3. Install dependencies:
-   ```zsh
-   pip install -r requirements.txt
-   ```
-4. Set up your `.env` file with your PostgreSQL credentials and secret key.
-5. Run database migrations (manual or with Alembic).
-6. Start the server:
-   ```zsh
-   uvicorn main:app --reload
-   ```
+1. `database.py` parses `DATABASE_URL` and uses psycopg2 to connect to the default `postgres` DB, creating the target DB if missing.
+2. Then, SQLAlchemy's async engine is initialized.
+3. On app startup, tables for users and notes are created if missing.
+4. All API endpoints use async DB sessions for scalable, non-blocking I/O.
 
-## Environment Variables
-Example `.env`:
-```
-DATABASE_URL=postgresql+asyncpg://user:password@localhost:5432/cloudnotes
-SECRET_KEY=supersecretkey
-```
+## API Endpoints
+
+### Auth
+- `POST /register` — Register a new user
+- `POST /login` — Get JWT token
+- `GET /me` — Get current user info (requires Bearer token)
+
+### Notes
+- `POST /notes` — Create a note (requires Bearer token)
+- `GET /notes` — List notes (requires Bearer token)
+- `PUT /notes/{id}` — Update a note (requires Bearer token)
+- `DELETE /notes/{id}` — Delete a note (requires Bearer token)
+
+## Setup & Usage
+
+1. **Install dependencies:**
+    ```zsh
+    python3 -m venv .venv
+    source .venv/bin/activate
+    pip install -r backend/requirements.txt
+    ```
+
+2. **Configure Postgres:**
+    - Ensure Postgres is running on localhost:5432
+    - Default user: `postgres`, password: `123`
+    - DB name: `cloudnotes` (auto-created if missing)
+    - You can override DB URL by setting `DATABASE_URL` before first run
+
+3. **Start the server:**
+    ```zsh
+    uvicorn backend.main:app --reload --port 8003
+    ```
+
+4. **Test APIs with curl:**
+    - Register:
+       ```zsh
+       curl -X POST http://127.0.0.1:8003/register \
+          -H "Content-Type: application/json" \
+          -d '{"email":"user1@example.com","password":"testpass123"}'
+       ```
+    - Login:
+       ```zsh
+       curl -X POST http://127.0.0.1:8003/login \
+          -H "Content-Type: application/x-www-form-urlencoded" \
+          -d "username=user1@example.com&password=testpass123"
+       ```
+    - Use the returned `access_token` for all other endpoints:
+       ```zsh
+       curl -X GET http://127.0.0.1:8003/me \
+          -H "Authorization: Bearer <access_token>"
+       ```
+
+## Notes
+- All DB/session logic is async for performance.
+- DB is auto-created if missing (no manual setup needed).
+- All endpoints require JWT Bearer token except register/login.
+- See `backend/scripts/create_database.py` for manual DB creation.
 
 ## License
 MIT
