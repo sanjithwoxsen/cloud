@@ -10,6 +10,8 @@ services:
       POSTGRES_PASSWORD: 123
     volumes:
       - cloud_pg_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"  # Expose container's 5432 as 5433 on host
 
   app:
     build: .
