@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16
+    container_name: cloud_postgres
+    environment:
+      POSTGRES_DB: cloudnotes
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123
+    volumes:
+      - cloud_pg_data:/var/lib/postgresql/data
+
+  app:
+    build: .
+    container_name: cloud_app
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgresql+asyncpg://postgres:123@db:5432/cloudnotes
+    ports:
+      - "8000:8000"
+      - "8080:8080"
+    volumes:
+      - .:/app
+    restart: unless-stopped
+
+volumes:
+  cloud_pg_data:
