@@ -25,6 +25,7 @@ call npm install
 call npm run build
 
 REM Start the frontend server in production mode
-start "Frontend" cmd /k npx serve dist -l %FRONTEND_PORT%
+call npm install -g serve
+start "Frontend" cmd /k serve dist -l %FRONTEND_PORT%
 
 REM Note: Manual process management is required on Windows.
