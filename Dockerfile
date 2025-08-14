@@ -1,5 +1,5 @@
 # ---------- FRONTEND BUILD STAGE ----------
-FROM --platform=linux/arm64 oven/bun:latest AS frontend-builder
+FROM oven/bun:latest AS frontend-builder
 WORKDIR /app/frontend
 
 # Copy deps first to use cache
@@ -15,7 +15,7 @@ COPY frontend/ .
 RUN bun run build
 
 # ---------- BACKEND + FINAL IMAGE ----------
-FROM --platform=linux/arm64 python:3.13-slim AS final
+FROM python:3.13-slim AS final
 WORKDIR /app
 
 # Install Python deps

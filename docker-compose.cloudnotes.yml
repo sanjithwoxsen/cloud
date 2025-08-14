@@ -1,0 +1,27 @@
+version: '3.8'
+services:
+  app:
+    image: knowledgeflows/cloudnotes:latest
+    container_name: cloudnotes_app
+    ports:
+      - "8000:8000"
+      - "8080:8080"
+    environment:
+      SECRET_KEY: 2f8c1e7a4b6d4e8f9c3a1b7d6e5f4c2a
+      DATABASE_URL: "postgresql+asyncpg://postgres:123@cloud_postgres:5432/cloudnotes"
+      JWT_EXPIRATION: "3600"
+    depends_on:
+      - db
+  db:
+    image: postgres:16
+    container_name: cloud_postgres
+    environment:
+      POSTGRES_DB: cloudnotes
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123
+    volumes:
+      - cloud_pg_data:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"  # Expose container's 5432 as 5433 on host
+volumes:
+  cloud_pg_data:
